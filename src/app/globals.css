@@ -38,3 +38,8 @@ body {
   outline: 2px solid #0f172a;
   outline-offset: 2px;
 }
+
+/* Hide Next.js dev tools overlay badge (injected by `next dev` at runtime) */
+nextjs-portal {
+  display: none !important;
+}
