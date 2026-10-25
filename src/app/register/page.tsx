@@ -39,7 +39,8 @@ export default function RegisterPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <h1 className="text-2xl font-bold">Create account</h1>
+      <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <h1 className="text-2xl font-bold">Create account</h1>
       <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
         Join Bazaar as a retailer or wholesaler.
       </p>
@@ -82,6 +83,7 @@ export default function RegisterPage() {
           Sign in
         </Link>
       </p>
+      </div>
     </main>
   )
 }
