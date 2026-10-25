@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
-import { api } from "@/lib/api"
+import { api, isAuthenticated } from "@/lib/api"
 
 interface OrderItem { id: string; product_name: string; quantity: number; unit_price: number }
 interface Order { id: string; status: string; total: number; created_at: string; items: OrderItem[] }
@@ -16,6 +18,14 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export default function OrdersPage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push("/login")
+    }
+  }, [router])
+
   const { data, isLoading, error } = useQuery<Order[]>({
     queryKey: ["orders"],
     queryFn: () => api.get<Order[]>("/orders"),

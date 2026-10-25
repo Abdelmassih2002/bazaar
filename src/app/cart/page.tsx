@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { api } from "@/lib/api"
+import { api, isAuthenticated } from "@/lib/api"
 
 interface CartItem {
   id: string
@@ -17,6 +19,14 @@ interface Cart {
 }
 
 export default function CartPage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push("/login")
+    }
+  }, [router])
+
   const qc = useQueryClient()
   const { data, isLoading } = useQuery<Cart>({
     queryKey: ["cart"],
@@ -63,7 +73,7 @@ export default function CartPage() {
         ))}
       </ul>
       {items.length > 0 && (
-        <div className="mt-6 flex items-center justify-between border-t pt-4 dark:border-gray-800">
+        <div className="mt-6 w-full flex items-center justify-between gap-4 flex-wrap border-t pt-4 dark:border-gray-800">
           <span className="text-lg font-bold">Total: ${total.toFixed(2)}</span>
           <button className="rounded-lg bg-black px-6 py-2 text-white hover:bg-gray-800 dark:bg-white dark:text-black">
             Checkout (TODO)

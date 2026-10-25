@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { api } from "@/lib/api"
+import { api, isAuthenticated } from "@/lib/api"
 import type { Product } from "@/types"
 
 export default function ProductsPage() {
@@ -13,8 +13,12 @@ export default function ProductsPage() {
   })
 
   const addMut = useMutation({
-    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) =>
-      api.post("/cart/items", { product_id: productId, quantity }),
+    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) => {
+      if (!isAuthenticated()) {
+        throw new Error("Please log in to add items to cart")
+      }
+      return api.post("/cart/items", { product_id: productId, quantity })
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["cart"] }),
   })
 

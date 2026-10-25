@@ -6,7 +6,7 @@ import Link from "next/link"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { api } from "@/lib/api"
+import { api, setToken } from "@/lib/api"
 
 const schema = z.object({
   email: z.string().email("Invalid email"),
@@ -27,7 +27,11 @@ export default function LoginPage() {
   const onSubmit = async (values: FormValues) => {
     setError(null)
     try {
-      await api.post("/auth/login", values)
+      const { access_token } = await api.post<{ access_token: string }>(
+        "/auth/login",
+        values
+      )
+      setToken(access_token)
       router.push("/products")
     } catch (e) {
       setError(e instanceof Error ? e.message : "Login failed")

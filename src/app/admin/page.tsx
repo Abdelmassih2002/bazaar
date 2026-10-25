@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
-import { api } from "@/lib/api"
+import { api, isAuthenticated, getCurrentUser } from "@/lib/api"
 
 interface Dashboard {
   total_products: number
@@ -14,10 +16,46 @@ interface Dashboard {
 }
 
 export default function AdminPage() {
+  const router = useRouter()
+  const [user, setUser] = useState<{ id: string; email: string; role: string } | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    if (!isAuthenticated()) {
+      router.push("/login")
+      return
+    }
+    getCurrentUser().then((u) => {
+      if (mounted) setUser(u)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [router, isAuthenticated])
+
+  const isAuthorized = !!user && (user.role === "wholesaler" || user.role === "admin")
+
   const { data, isLoading, error } = useQuery<Dashboard>({
     queryKey: ["admin-dashboard"],
     queryFn: () => api.get<Dashboard>("/admin/dashboard"),
+    enabled: isAuthorized,
   })
+
+  if (!user) return null
+
+  if (!isAuthorized) {
+    return (
+      <main className="mx-auto max-w-5xl px-6 py-10 text-center">
+        <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
+        <p className="mt-4 text-gray-600">
+          The admin dashboard is only available to wholesalers and administrators.
+        </p>
+        <Link href="/products" className="mt-6 inline-block rounded-lg bg-black px-6 py-2 text-white hover:bg-gray-800 dark:bg-white dark:text-black">
+          Back to Products
+        </Link>
+      </main>
+    )
+  }
 
   if (isLoading) return <main className="p-6">Loading dashboard...</main>
   if (error) return <main className="p-6 text-red-600">Failed to load dashboard. (Wholesaler/Admin role required)</main>
